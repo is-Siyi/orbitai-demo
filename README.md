@@ -17,7 +17,7 @@
 ### 支持的模型（均为 OpenAI 兼容协议，设置里可选手动填写任意兼容接口）
 
 | 厂商 | Base URL（预设自动填充） | 备注 |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | SiliconFlow | `https://api.siliconflow.cn/v1` | 国内，注册送额度，有免费模型，零成本上手 |
 | DeepSeek | `https://api.deepseek.com` | 性价比高，`deepseek-chat` |
 | 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 阿里云，兼容模式 |

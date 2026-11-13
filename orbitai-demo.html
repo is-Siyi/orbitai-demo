@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OrbitAI · 全域营销智能体平台 | 产品 Demo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%232E5BFF'/%3E%3Cellipse cx='16' cy='16' rx='14' ry='6.5' fill='none' stroke='%232E5BFF' stroke-width='2' transform='rotate(-24 16 16)'/%3E%3Ccircle cx='27' cy='10.5' r='2.4' fill='%2306B6D4'/%3E%3C/svg%3E">
+<script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+/* ============================================================
+   OrbitAI 设计系统
+   ============================================================ */
+:root{
+  --primary:#2E5BFF;
+  --primary-strong:#1E44D6;
+  --primary-soft:#EAF0FF;
+  --cyan:#06B6D4;
+  --cyan-soft:#E2F7FB;
+  --ink:#101A30;
+  --ink-2:#17233E;
+  --ink-3:#22304E;
+  --bg:#F5F7FB;
+  --card:#FFFFFF;
+  --line:#E6EAF2;
+  --line-strong:#D5DCEA;
+  --text:#1A2338;
+  --text-2:#54607A;
+  --text-3:#8C96AB;
+  --success:#12A37A;
+  --success-soft:#E4F5F0;
+  --warning:#E8912D;
+  --warning-soft:#FCF1E1;
+  --danger:#DC4C46;
+  --danger-soft:#FBEAE9;
+  --violet:#7A5AF8;
+  --violet-soft:#EFEBFE;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 2px rgba(16,26,48,.05),0 4px 16px rgba(16,26,48,.06);
+  --shadow-lg:0 8px 32px rgba(16,26,48,.14);
+  --sidebar-w:232px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif;
+  --mono:"SF Mono",Consolas,"Courier New",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:14px;color:var(--text)}
+a{color:var(--primary);text-decoration:none}
+ul,ol{list-style:none}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+::selection{background:rgba(46,91,255,.18)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#CBD3E2;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ============================================================
+   应用骨架
+   ============================================================ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--ink);color:#B9C3D8;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:60;transition:transform .25s ease}
+.brand{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.07)}
+.brand-mark{width:34px;height:34px;flex:none}
+.brand-name{font-size:17px;font-weight:700;color:#fff;letter-spacing:.3px}
+.brand-sub{font-size:11px;color:#7482A1;letter-spacing:.6px;margin-top:1px}
+.nav{padding:14px 12px;flex:1;overflow-y:auto}
+.nav-group{font-size:11px;color:#66748F;letter-spacing:1px;padding:14px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#B9C3D8;font-size:14px;width:100%;text-align:left;margin-bottom:2px;transition:background .15s,color .15s}
+.nav-item svg{width:18px;height:18px;flex:none}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:var(--primary);color:#fff;font-weight:600}
+.nav-item .tag-dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--cyan)}
+.sidebar-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:#7482A1;line-height:1.7}
+.sidebar-foot b{color:#D6DEEC;font-weight:600}
+
+.main{flex:1;margin-left:var(--sidebar-w);min-width:0;display:flex;flex-direction:column}
+.topbar{height:62px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;z-index:40}
+.menu-btn{display:none;width:38px;height:38px;align-items:center;justify-content:center;border-radius:8px}
+.menu-btn:hover{background:var(--bg)}
+.view-title{font-size:17px;font-weight:700}
+.view-crumb{font-size:12px;color:var(--text-3);margin-top:1px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.env-pill{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-2);background:var(--bg);border:1px solid var(--line);padding:6px 11px;border-radius:999px}
+.env-pill i{width:7px;height:7px;border-radius:50%;background:var(--success)}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2E5BFF,#06B6D4);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.content{padding:26px;max-width:1440px;width:100%;margin:0 auto}
+.view{display:none;animation:fade .25s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sidebar-mask{display:none;position:fixed;inset:0;background:rgba(10,18,36,.45);z-index:55}
+
+/* ============================================================
+   通用组件
+   ============================================================ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;border:1px solid transparent;transition:all .15s;white-space:nowrap;min-height:38px}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-strong)}
+.btn-ghost{background:#fff;border-color:var(--line-strong);color:var(--text-2)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-soft{background:var(--primary-soft);color:var(--primary)}
+.btn-soft:hover{background:#dde7ff}
+.btn-danger-soft{background:var(--danger-soft);color:var(--danger)}
+.btn-sm{padding:6px 11px;min-height:30px;font-size:12.5px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.card-head h3{font-size:15px;font-weight:700}
+.card-head .sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.card-body{padding:20px}
+.card-head .right{margin-left:auto}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.5}
+.badge-blue{background:var(--primary-soft);color:var(--primary)}
+.badge-cyan{background:var(--cyan-soft);color:#0891A8}
+.badge-green{background:var(--success-soft);color:var(--success)}
+.badge-amber{background:var(--warning-soft);color:#C77A1C}
+.badge-red{background:var(--danger-soft);color:var(--danger)}
+.badge-violet{background:var(--violet-soft);color:var(--violet)}
+.badge-gray{background:#EEF1F6;color:var(--text-2)}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.field label .hint{font-weight:400;color:var(--text-3);font-size:12px;margin-left:5px}
+.input,.textarea,.select{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:9px 12px;background:#fff;transition:border .15s,box-shadow .15s}
+.input:focus,.textarea:focus,.select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(46,91,255,.12)}
+.textarea{resize:vertical;min-height:78px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;color:var(--text-2);background:#fff;transition:all .15s}
+.chip:hover{border-color:var(--primary);color:var(--primary)}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tab{padding:10px 15px;font-size:13.5px;font-weight:600;color:var(--text-3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary)}
+.grid{display:grid;gap:16px}
+.kpi-num{font-size:26px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi-label{font-size:12.5px;color:var(--text-3);margin-top:3px}
+.delta{font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:3px}
+.delta.up{color:var(--success)}
+.delta.down{color:var(--danger)}
+.section-title{font-size:15px;font-weight:700;margin:26px 0 13px;display:flex;align-items:center;gap:9px}
+.section-title:first-child{margin-top:0}
+.section-title .more{margin-left:auto;font-size:12.5px;font-weight:500;color:var(--primary)}
+.muted{color:var(--text-3)}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.toast-wrap{position:fixed;right:24px;bottom:24px;z-index:120;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--ink-2);color:#fff;padding:12px 18px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;animation:toastIn .25s ease;max-width:340px}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#4ADE80}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal-mask{position:fixed;inset:0;background:rgba(10,18,36,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:520px;box-shadow:var(--shadow-lg);animation:toastIn .2s ease;max-height:88vh;overflow:auto}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;font-weight:700;font-size:15.5px}
+.modal-body{padding:22px}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.close-x{margin-left:auto;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-3)}
+.close-x:hover{background:var(--bg);color:var(--text)}
+
+/* 命令面板 */
+.palette-mask{position:fixed;inset:0;background:rgba(10,18,36,.42);z-index:120;display:none;align-items:flex-start;justify-content:center;padding:13vh 24px 24px}
+.palette-mask.show{display:flex}
+.palette{background:#fff;border-radius:14px;width:100%;max-width:620px;box-shadow:var(--shadow-lg);overflow:hidden;animation:toastIn .16s ease}
+.palette-input{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.palette-input svg{width:19px;height:19px;color:var(--text-3);flex:none}
+.palette-input input{flex:1;border:none;outline:none;font-size:14.5px;background:transparent;min-width:0}
+.palette-input kbd,.kbd-tag{font-family:var(--mono);font-size:11px;color:var(--text-3);border:1px solid var(--line-strong);border-radius:6px;padding:2px 7px;flex:none;background:var(--bg)}
+.palette-list{max-height:52vh;overflow:auto;padding:8px}
+.palette-group{font-size:11.5px;color:var(--text-3);padding:8px 12px 5px}
+.palette-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:9px;font-size:13.5px;text-align:left}
+.palette-item .pi-ico{width:27px;height:27px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex:none;color:var(--text-2)}
+.palette-item .pi-ico svg{width:15px;height:15px}
+.palette-item.sel{background:var(--primary-soft);color:var(--primary-strong)}
+.palette-item.sel .pi-ico{background:#fff;color:var(--primary)}
+.palette-empty{padding:28px;text-align:center;color:var(--text-3);font-size:13px}
+.palette-trigger{display:flex;align-items:center;gap:7px}
+
+/* 产品决策记录 */
+.dec-card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.dec-q{font-weight:700;font-size:14px;margin-bottom:10px;color:var(--ink)}
+.dec-row{display:flex;gap:10px;font-size:13px;line-height:1.65;margin-bottom:7px}
+.dec-tag{flex:none;font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 8px;height:fit-content;margin-top:2px}
+.dec-pick .dec-tag{background:var(--success-soft);color:var(--success)}
+.dec-drop .dec-tag{background:var(--danger-soft);color:var(--danger)}
+.dec-why{font-size:12.5px;color:var(--text-2);background:var(--bg);border-radius:8px;padding:9px 12px;line-height:1.65}
+
+/* ============================================================
+   工作台 Dashboard
+   ============================================================ */
+.kpi-grid{grid-template-columns:repeat(4,1fr)}
+.kpi-card{padding:18px 20px}
+.kpi-card .top{display:flex;align-items:center;justify-content:space-between}
+.kpi-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.kpi-ico svg{width:20px;height:20px}
+.proj-grid{grid-template-columns:repeat(3,1fr)}
+.proj-card{padding:18px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.proj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.proj-card .row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.proj-logo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;flex:none}
+.proj-name{font-weight:700;font-size:14.5px}
+.proj-en{font-size:12px;color:var(--text-3)}
+.proj-desc{font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6;min-height:42px}
+.proj-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);padding-top:12px;border-top:1px solid var(--line)}
+.progress{height:6px;background:#EDF0F6;border-radius:99px;overflow:hidden;margin-top:8px}
+.progress i{display:block;height:100%;border-radius:99px;background:var(--primary)}
+.feed li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.feed li:last-child{border-bottom:none}
+.feed-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.feed-ico svg{width:16px;height:16px}
+.feed-time{font-size:12px;color:var(--text-3);margin-top:2px}
+.dual-grid{grid-template-columns:1.6fr 1fr}
+
+/* ============================================================
+   智能体工作室 Studio
+   ============================================================ */
+.studio-grid{display:grid;grid-template-columns:330px 1fr;gap:16px;align-items:start}
+.brief-panel{position:sticky;top:84px}
+.brief-panel .card-body{padding:18px}
+.agent-flow{display:flex;flex-direction:column;gap:0}
+.agent-node{display:flex;gap:14px;position:relative;padding-bottom:18px}
+.agent-node:last-child{padding-bottom:0}
+.agent-node::before{content:"";position:absolute;left:19px;top:40px;bottom:0;width:2px;background:var(--line)}
+.agent-node:last-child::before{display:none}
+.agent-avatar{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;position:relative;z-index:1;background:#fff;border:2px solid var(--line-strong);transition:all .25s}
+.agent-avatar svg{width:20px;height:20px;color:var(--text-3)}
+.agent-node.done .agent-avatar{background:var(--success);border-color:var(--success)}
+.agent-node.done .agent-avatar svg{color:#fff}
+.agent-node.running .agent-avatar{border-color:var(--primary);background:var(--primary-soft)}
+.agent-node.running .agent-avatar svg{color:var(--primary)}
+.agent-node.running .agent-avatar::after{content:"";position:absolute;inset:-5px;border-radius:14px;border:2px solid var(--primary);opacity:.45;animation:pulse 1.2s infinite}
+@keyframes pulse{0%{transform:scale(.92);opacity:.55}70%{transform:scale(1.08);opacity:0}100%{opacity:0}}
+.agent-node.gate .agent-avatar{border-radius:50%;background:#fff}
+.agent-node.gate.done .agent-avatar{background:var(--warning);border-color:var(--warning)}
+.agent-node.gate.done .agent-avatar svg{color:#fff}
+.agent-main{flex:1;min-width:0;padding-top:2px}
+.agent-name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.agent-role{font-size:12px;color:var(--text-3);margin-top:2px}
+.agent-state{font-size:12px;margin-top:6px}
+.agent-node.pending .agent-state{color:var(--text-3)}
+.agent-node.running .agent-state{color:var(--primary);font-weight:600}
+.agent-node.done .agent-state{color:var(--success)}
+.agent-node.gate .agent-state{color:var(--warning)}
+.gate-actions{display:flex;gap:8px;margin-top:9px}
+.run-panel{min-height:520px;display:flex;flex-direction:column}
+.run-log{flex:1;background:#0C1426;border-radius:10px;padding:16px;font-family:var(--mono);font-size:12.5px;line-height:1.85;overflow-y:auto;max-height:430px;color:#9DB0D2}
+.run-log .ts{color:#5C6E90}
+.run-log .ok{color:#4ADE80}
+.run-log .info{color:#7AB0FF}
+.run-log .warn{color:#FBBF24}
+.run-log .dim{color:#5C6E90}
+.run-cursor{display:inline-block;width:8px;height:15px;background:#7AB0FF;vertical-align:-2px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+.run-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-3);padding:40px 20px;gap:14px}
+.run-empty svg{width:56px;height:56px;opacity:.5}
+.deliverable{display:none}
+.deliverable.show{display:block}
+.deli-tab{display:none}
+.deli-tab.on{display:block}
+.deli-block{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:13px}
+.deli-block h4{font-size:13.5px;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.deli-block p,.deli-block li{font-size:13px;color:var(--text-2);line-height:1.75}
+.deli-block li{padding-left:16px;position:relative;margin-bottom:5px}
+.deli-block li::before{content:"";position:absolute;left:2px;top:10px;width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.budget-row{display:flex;align-items:center;gap:12px;margin-bottom:11px;font-size:13px}
+.budget-row .name{width:110px;color:var(--text-2);flex:none}
+.budget-row .bar{flex:1;height:9px;background:#EDF0F6;border-radius:99px;overflow:hidden}
+.budget-row .bar i{display:block;height:100%;border-radius:99px}
+.budget-row .val{width:108px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;flex:none;font-size:12.5px}
+.gantt{display:grid;grid-template-columns:96px repeat(8,1fr);gap:6px 0;font-size:11.5px;align-items:center}
+.gantt .gl{color:var(--text-2);padding-right:8px}
+.gantt .cell{height:24px;border-radius:6px;display:flex;align-items:center;padding:0 8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden}
+.gantt .gh{color:var(--text-3);text-align:center;font-weight:600}
+
+/* ============================================================
+   创意中心 Content
+   ============================================================ */
+.content-grid{grid-template-columns:300px 1fr;align-items:start}
+.lang-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.lang-tab{padding:8px 14px;border-radius:9px;border:1px solid var(--line-strong);background:#fff;font-size:13px;font-weight:600;color:var(--text-2)}
+.lang-tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.post-card{border:1px solid var(--line);border-radius:11px;padding:18px;margin-bottom:14px}
+.post-meta{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.post-text{font-size:13.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;min-height:90px}
+.post-actions{display:flex;gap:9px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.score-meter{display:flex;align-items:center;gap:10px;margin-top:12px}
+.score-ring{width:52px;height:52px;flex:none}
+.score-detail{flex:1}
+.score-line{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-2);margin-bottom:4px}
+.score-line .bar{flex:1;height:5px;background:#EDF0F6;border-radius:99px;overflow:hidden}
+.score-line .bar i{display:block;height:100%;background:var(--primary)}
+.score-line span:last-child{width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.typing::after{content:"▋";color:var(--primary);animation:blink 1s infinite}
+
+/* ============================================================
+   效果评估 Analytics
+   ============================================================ */
+.chart-box{width:100%;height:300px}
+.chart-box.sm{height:260px}
+.analytics-grid{grid-template-columns:1fr 1fr}
+.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.mini-metric{background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px 16px}
+.mini-metric .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.mini-metric .l{font-size:12px;color:var(--text-3);margin-top:2px}
+.eval-table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px}
+.eval-table th{text-align:left;font-size:12px;color:var(--text-3);font-weight:600;padding:10px 12px;background:#F8FAFD;border-bottom:1px solid var(--line)}
+.eval-table td{padding:12px;border-bottom:1px solid var(--line);color:var(--text-2)}
+.eval-table tr:last-child td{border-bottom:none}
+.eval-table .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text)}
+
+/* ============================================================
+   模板中心 Templates
+   ============================================================ */
+.tpl-grid{grid-template-columns:repeat(3,1fr)}
+.tpl-card{padding:20px;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.tpl-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.tpl-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.tpl-ico svg{width:23px;height:23px}
+.tpl-name{font-weight:700;font-size:15px;margin-bottom:6px}
+.tpl-desc{font-size:13px;color:var(--text-2);line-height:1.7;flex:1;margin-bottom:15px}
+.tpl-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}
+.tpl-foot{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.tpl-foot .use-count{font-size:12px;color:var(--text-3);margin-left:auto}
+
+/* ============================================================
+   产品介绍 Product
+   ============================================================ */
+.hero-panel{background:var(--ink);border-radius:16px;padding:40px 42px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}
+.hero-panel::after{content:"";position:absolute;right:-80px;top:-80px;width:340px;height:340px;border:1px solid rgba(255,255,255,.12);border-radius:50%}
+.hero-panel::before{content:"";position:absolute;right:-30px;top:30px;width:240px;height:240px;border:1px solid rgba(255,255,255,.08);border-radius:50%}
+.hero-panel h1{font-size:27px;line-height:1.4;margin-bottom:12px;position:relative;z-index:1}
+.hero-panel p{color:#AEBBD4;font-size:14px;max-width:640px;line-height:1.85;position:relative;z-index:1}
+.hero-badges{display:flex;gap:9px;margin-top:20px;position:relative;z-index:1;flex-wrap:wrap}
+.hero-badges .badge{background:rgba(255,255,255,.1);color:#DDE5F2}
+.arch-layers{display:flex;flex-direction:column;gap:11px}
+.arch-layer{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fff;display:flex;align-items:center;gap:16px}
+.arch-tag{width:118px;flex:none;font-weight:700;font-size:13px;border-radius:9px;padding:10px;text-align:center}
+.arch-items{display:flex;gap:9px;flex-wrap:wrap;flex:1}
+.arch-item{border:1px solid var(--line);border-radius:8px;padding:8px 13px;font-size:12.5px;color:var(--text-2);background:#FAFBFE}
+.roadmap{position:relative;padding-left:6px}
+.rm-item{display:grid;grid-template-columns:110px 1fr;gap:18px;padding-bottom:26px;position:relative}
+.rm-item::before{content:"";position:absolute;left:143px;top:18px;bottom:-6px;width:2px;background:var(--line)}
+.rm-item:last-child::before{display:none}
+.rm-dot{position:absolute;left:138px;top:6px;width:12px;height:12px;border-radius:50%;border:3px solid var(--primary);background:#fff;z-index:1}
+.rm-item.done .rm-dot{background:var(--primary)}
+.rm-time{font-size:13px;font-weight:700;color:var(--primary);padding-top:2px}
+.rm-body h4{font-size:14px;margin-bottom:5px}
+.rm-body p{font-size:13px;color:var(--text-2);line-height:1.7}
+.pain-grid{grid-template-columns:repeat(3,1fr)}
+.pain-card{padding:18px}
+.pain-card h4{font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.pain-card p{font-size:13px;color:var(--text-2);line-height:1.7}
+.value-grid{grid-template-columns:repeat(4,1fr)}
+.value-card{text-align:center;padding:22px 16px}
+.value-card .n{font-size:28px;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
+.value-card .l{font-size:12.5px;color:var(--text-2);margin-top:6px}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width:1180px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .proj-grid,.tpl-grid{grid-template-columns:repeat(2,1fr)}
+  .studio-grid,.content-grid{grid-template-columns:1fr}
+  .brief-panel{position:static}
+  .dual-grid{grid-template-columns:1fr}
+  .analytics-grid{grid-template-columns:1fr}
+  .pain-grid,.value-grid{grid-template-columns:repeat(2,1fr)}
+  .metric-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:760px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .sidebar-mask.show{display:block}
+  .main{margin-left:0}
+  .menu-btn{display:flex}
+  .content{padding:16px}
+  .topbar{padding:0 14px}
+  .kpi-grid,.proj-grid,.tpl-grid,.pain-grid,.value-grid{grid-template-columns:1fr}
+  .hero-panel{padding:28px 22px}
+  .hero-panel h1{font-size:22px}
+  .env-pill{display:none}
+  .gantt{grid-template-columns:76px repeat(8,1fr)}
+  .arch-layer{flex-direction:column;align-items:stretch}
+  .arch-tag{width:100%;text-align:center}
+  #flowLayout{grid-template-columns:1fr!important}
+  .rm-item{grid-template-columns:1fr;gap:6px;padding-left:30px}
+  .rm-item::before{left:13px}
+  .rm-dot{left:7px}
+  .metric-strip{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32"><circle cx="16" cy="16" r="6" fill="#2E5BFF"/><ellipse cx="16" cy="16" rx="14" ry="6.5" fill="none" stroke="#2E5BFF" stroke-width="2" transform="rotate(-24 16 16)"/><circle cx="27" cy="10.5" r="2.4" fill="#06B6D4"/></svg>
+      <div>
+        <div class="brand-name">OrbitAI</div>
+        <div class="brand-sub">全域营销智能体平台</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-group">工作空间</div>
+      <button class="nav-item" data-route="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        营销工作台
+      </button>
+      <button class="nav-item" data-route="studio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
+        智能体工作室
+        <span class="tag-dot"></span>
+      </button>
+      <button class="nav-item" data-route="content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        创意内容中心
+      </button>
+      <button class="nav-item" data-route="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        效果评估
+      </button>
+      <div class="nav-group">资产与平台</div>
+      <button class="nav-item" data-route="templates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        场景模板中心
+      </button>
+      <button class="nav-item" data-route="product">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>
+        产品与架构
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <b>真实运行模式</b><br>
+      浏览器直连大模型 API<br>
+      Key 仅存本地，不上传
+    </div>
+  </aside>
+  <div class="sidebar-mask" id="sidebarMask"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="菜单">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div>
+        <div class="view-title" id="viewTitle">营销工作台</div>
+        <div class="view-crumb" id="viewCrumb">OrbitAI / 工作空间 / 营销工作台</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-soft btn-sm palette-trigger" id="paletteTopBtn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>快速跳转</span>
+          <span class="kbd-tag">Ctrl K</span>
+        </button>
+        <button class="btn btn-soft btn-sm" id="settingsTopBtn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          模型设置
+        </button>
+        <span class="env-pill" id="connPill"><i id="connDot"></i><span id="connText">未连接模型</span></span>
+        <button class="btn btn-ghost btn-sm" id="demoGuideBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          演示导览
+        </button>
+        <div class="avatar">黄</div>
+      </div>
+    </header>
+    <main class="content">
+<!-- ===== 视图：营销工作台 ===== -->
+<section class="view" id="view-dashboard">
+  <div class="grid kpi-grid">
+    <div class="card kpi-card">
+      <div class="top">
+        <div>
+          <div class="kpi-num">12</div>
+          <div class="kpi-label">进行中营销战役</div>
+        </div>
+        <div class="kpi-ico" style="background:var(--primary-soft)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2E5BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-7-8-3Z"/></svg>
+        </div>
+      </div>
+      <div class="delta up" style="margin-top:10px">较上月 +3 个</div>
+    </div>
+    <div class="card kpi-card">
+      <div class="top">
+        <div>
+          <div class="kpi-num">87.4%</div>
+          <div class="kpi-label">AI 产出一次采纳率</div>
+        </div>
+        <div class="kpi-ico" style="background:var(--success-soft)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#12A37A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+      </div>
+      <div class="delta up" style="margin-top:10px">环比 +6.2pct</div>
+    </div>
+    <div class="card kpi-card">
+      <div class="top">
+        <div>
+          <div class="kpi-num">-62%</div>
+          <div class="kpi-label">战役平均交付周期</div>
+        </div>
+        <div class="kpi-ico" style="background:var(--violet-soft)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7A5AF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+      </div>
+      <div class="delta up" style="margin-top:10px">14 天 → 5.3 天</div>
+    </div>
+    <div class="card kpi-card">
+      <div class="top">
+        <div>
+          <div class="kpi-num">-41%</div>
+          <div class="kpi-label">单战役人力成本</div>
+        </div>
+        <div class="kpi-ico" style="background:var(--warning-soft)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E8912D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+      </div>
+      <div class="delta up" style="margin-top:10px">人均同时跟进 3.2 → 5.8 个</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">我的战役项目
+    <button class="btn btn-primary btn-sm" id="newCampaignBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      新建战役
+    </button>
+  </h2>
+  <div class="grid proj-grid">
+    <div class="card proj-card" data-open-project="muglow">
+      <div class="row1">
+        <div class="proj-logo" style="background:linear-gradient(135deg,#2E5BFF,#06B6D4)">M</div>
+        <div><div class="proj-name">沐光 MUGLOW 东南亚出海</div><div class="proj-en">泰国 · 印尼 · 防晒新品冷启动</div></div>
+      </div>
+      <div class="proj-desc">高倍防晒喷雾首站进入东南亚，90 天完成品牌冷启动与达人种草，目标 GMV 92 万元。</div>
+      <div class="chips" style="margin-bottom:10px">
+        <span class="badge badge-blue">出海冷启动</span><span class="badge badge-cyan">达人种草</span>
+      </div>
+      <div class="progress"><i style="width:68%"></i></div>
+      <div class="proj-meta"><span>进度 68%</span><span>7 个 Agent 协同中</span></div>
+    </div>
+    <div class="card proj-card" data-open-project="luye">
+      <div class="row1">
+        <div class="proj-logo" style="background:linear-gradient(135deg,#12A37A,#06B6D4)">L</div>
+        <div><div class="proj-name">绿野 LVYE 双 12 大促</div><div class="proj-en">全域效果投放 · 实时素材生成</div></div>
+      </div>
+      <div class="proj-desc">植物基食品双 12 大促，AI 实时生成千人千面素材，智能预算调拨覆盖 6 个媒体渠道。</div>
+      <div class="chips" style="margin-bottom:10px">
+        <span class="badge badge-green">效果投放</span><span class="badge badge-amber">大促</span>
+      </div>
+      <div class="progress"><i style="width:42%;background:var(--success)"></i></div>
+      <div class="proj-meta"><span>进度 42%</span><span>ROAS 3.8</span></div>
+    </div>
+    <div class="card proj-card" data-open-project="geo">
+      <div class="row1">
+        <div class="proj-logo" style="background:linear-gradient(135deg,#7A5AF8,#2E5BFF)">G</div>
+        <div><div class="proj-name">星瀚 STARHAN GEO 心智战</div><div class="proj-en">生成引擎优化 · 品牌问答治理</div></div>
+      </div>
+      <div class="proj-desc">面向 AI 搜索与对话场景的品牌心智管理，监测 8 个生成引擎的品牌提及准确率与推荐位次。</div>
+      <div class="chips" style="margin-bottom:10px">
+        <span class="badge badge-violet">GEO</span><span class="badge badge-gray">品牌心智</span>
+      </div>
+      <div class="progress"><i style="width:85%;background:var(--violet)"></i></div>
+      <div class="proj-meta"><span>进度 85%</span><span>提及准确率 91%</span></div>
+    </div>
+  </div>
+
+  <div class="grid dual-grid" style="margin-top:20px">
+    <div class="card">
+      <div class="card-head"><h3>Agent 协作动态</h3><span class="badge badge-gray">实时</span></div>
+      <div class="card-body">
+        <ul class="feed">
+          <li>
+            <div class="feed-ico" style="background:var(--primary-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#2E5BFF" stroke-width="2" stroke-linecap="round"><path d="M3 11l18-8-8 18-2-7-8-3Z"/></svg></div>
+            <div><b>投放官</b> 完成沐光战役周度预算再分配，TikTok 预算上调 12%，预测 ROAS 提升 0.35<div class="feed-time">12 分钟前</div></div>
+          </li>
+          <li>
+            <div class="feed-ico" style="background:var(--violet-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#7A5AF8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+            <div><b>达人官</b> 新匹配 23 位泰国美妆垂类达人，已自动发出 18 封合作邀约<div class="feed-time">46 分钟前</div></div>
+          </li>
+          <li>
+            <div class="feed-ico" style="background:var(--success-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#12A37A" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+            <div><b>数据官</b> 生成绿野大促中期复盘，3 项素材指标低于基线，已推送优化建议<div class="feed-time">2 小时前</div></div>
+          </li>
+          <li>
+            <div class="feed-ico" style="background:var(--warning-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#E8912D" stroke-width="2" stroke-linecap="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/></svg></div>
+            <div><b>本地化官</b> 检出印尼语素材 2 处宗教文化敏感表述，已拦截并给出替换方案<div class="feed-time">3 小时前</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>快捷入口</h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-soft" style="justify-content:flex-start" data-quick="studio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          启动一支 AI 营销团队
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" data-quick="templates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          从场景模板开始
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" data-quick="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+          查看战役效果评估
+        </button>
+        <div class="divider"></div>
+        <div class="muted" style="font-size:12.5px;line-height:1.8">本月平台已累计执行 <b style="color:var(--text)">2,847</b> 次 A2A 智能体协作任务，消耗 Token 1.26 亿，沉淀可复用模板 36 个。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 视图：智能体工作室 ===== -->
+<section class="view" id="view-studio">
+  <div class="studio-grid">
+    <!-- Brief 输入 -->
+    <div class="brief-panel">
+      <div class="card">
+        <div class="card-head"><h3>营销 Brief</h3><span class="badge badge-blue">输入</span></div>
+        <div class="card-body">
+          <div class="field">
+            <label>品牌名称</label>
+            <input class="input" id="briefBrand" value="沐光 MUGLOW">
+          </div>
+          <div class="field">
+            <label>核心产品</label>
+            <input class="input" id="briefProduct" value="轻透高倍防晒喷雾 SPF50+ PA++++">
+          </div>
+          <div class="field">
+            <label>目标市场</label>
+            <div class="chips" id="marketChips">
+              <button class="chip on" data-m="泰国">泰国</button>
+              <button class="chip on" data-m="印尼">印尼</button>
+              <button class="chip" data-m="越南">越南</button>
+              <button class="chip" data-m="新加坡">新加坡</button>
+              <button class="chip" data-m="巴西">巴西</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>战役目标</label>
+            <select class="select" id="briefGoal">
+              <option>品牌冷启动与认知建立</option>
+              <option>达人种草与口碑扩散</option>
+              <option>大促效果转化</option>
+              <option>GEO 品牌心智管理</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>战役预算<span class="hint">人民币</span></label>
+            <input class="input" id="briefBudget" type="number" value="800000">
+          </div>
+          <div class="field">
+            <label>投放渠道</label>
+            <div class="chips" id="channelChips">
+              <button class="chip on" data-c="TikTok">TikTok</button>
+              <button class="chip on" data-c="Instagram">Instagram</button>
+              <button class="chip on" data-c="Shopee">Shopee</button>
+              <button class="chip" data-c="Meta">Meta</button>
+              <button class="chip" data-c="Google">Google</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>补充说明</label>
+            <textarea class="textarea" id="briefNote">主打清爽不黏腻、防水防汗，适合东南亚高温高湿气候；希望 90 天内完成冷启动，内容需符合当地宗教文化规范。</textarea>
+          </div>
+          <button class="btn btn-primary" id="runFlowBtn" style="width:100%">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            启动智能体工作流
+          </button>
+          <button class="btn btn-ghost" id="resetFlowBtn" style="width:100%;margin-top:9px">重置工作流</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工作流与输出 -->
+    <div class="card run-panel">
+      <div class="card-head">
+        <h3>多智能体编排</h3>
+        <span class="badge badge-gray" id="flowStatusBadge">待启动</span>
+        <div class="right tabs" style="border:none;margin:0">
+          <button class="tab on" data-run-tab="flow">工作流</button>
+          <button class="tab" data-run-tab="deliverable">交付方案</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- 工作流面板 -->
+        <div id="runTabFlow">
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:18px;align-items:start" id="flowLayout">
+            <div class="agent-flow" id="agentFlow">
+              <div class="agent-node pending" data-node="insight">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+                <div class="agent-main"><div class="agent-name">洞察官 <span class="badge badge-blue">Insight</span></div><div class="agent-role">市场与社媒聆听、竞品与消费者洞察</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="strategist">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg></div>
+                <div class="agent-main"><div class="agent-name">策略官 <span class="badge badge-violet">Strategist</span></div><div class="agent-role">定位、人群拆解、Big Idea 与战役主题</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node gate pending" data-node="gate1">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <div class="agent-main"><div class="agent-name">人工审核 · 策略评审</div><div class="agent-role">客户经理确认策略方向后继续</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="creative">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3Z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><path d="M2 2l7.6 7.6"/><circle cx="11" cy="11" r="2"/></svg></div>
+                <div class="agent-main"><div class="agent-name">创意官 <span class="badge badge-amber">Creative</span></div><div class="agent-role">内容矩阵、文案钩子、短视频脚本、视觉 Brief</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="localizer">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg></div>
+                <div class="agent-main"><div class="agent-name">本地化官 <span class="badge badge-cyan">Localizer</span></div><div class="agent-role">多语言转译、文化合规与本地化表达</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node gate pending" data-node="gate2">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <div class="agent-main"><div class="agent-name">人工审核 · 内容评审</div><div class="agent-role">品牌方确认创意内容后进入执行</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="creator">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+                <div class="agent-main"><div class="agent-name">达人官 <span class="badge badge-green">Creator</span></div><div class="agent-role">达人匹配、分级组合、批量邀约与合作管理</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="media">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+                <div class="agent-main"><div class="agent-name">投放官 <span class="badge badge-red">Media</span></div><div class="agent-role">渠道组合、预算分配、智能出价与风控</div><div class="agent-state">等待中</div></div>
+              </div>
+              <div class="agent-node pending" data-node="analytics">
+                <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+                <div class="agent-main"><div class="agent-name">数据官 <span class="badge badge-violet">Analytics</span></div><div class="agent-role">度量体系、复盘归因、GEO 监测与 ROI 校准</div><div class="agent-state">等待中</div></div>
+              </div>
+            </div>
+            <div>
+              <div class="run-log" id="runLog">
+                <div class="dim">OrbitAI Agent Runtime · 真实模型模式</div>
+                <div class="dim">先在「模型设置」接入 OpenAI 兼容接口，再点击「启动工作流」，每个 Agent 都会发起真实 LLM 调用</div>
+              </div>
+              <div class="run-empty" id="runEmpty" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+                <div>工作流尚未运行<br>7 个专业 Agent 将按编排顺序协同执行</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 交付物面板 -->
+        <div class="deliverable" id="runTabDeliverable">
+          <div class="run-empty" id="deliEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+            <div>工作流完成后在此生成完整战役交付方案<br>包含策略、创意、达人、预算与排期</div>
+          </div>
+          <div id="deliContent" style="display:none">
+            <div class="tabs">
+              <button class="tab on" data-deli-tab="d1">策略定位</button>
+              <button class="tab" data-deli-tab="d2">创意内容</button>
+              <button class="tab" data-deli-tab="d3">达人组合</button>
+              <button class="tab" data-deli-tab="d4">预算分配</button>
+              <button class="tab" data-deli-tab="d5">执行排期</button>
+            </div>
+            <div class="deli-tab on" id="d1"></div>
+            <div class="deli-tab" id="d2"></div>
+            <div class="deli-tab" id="d3"></div>
+            <div class="deli-tab" id="d4"></div>
+            <div class="deli-tab" id="d5"></div>
+            <div style="display:flex;gap:10px;margin-top:6px">
+              <button class="btn btn-primary" id="exportBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+                导出战役方案
+              </button>
+              <button class="btn btn-ghost" id="saveTplBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                存为团队模板
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ===== 视图：创意内容中心 ===== -->
+<section class="view" id="view-content">
+  <div class="grid content-grid">
+    <div class="card">
+      <div class="card-head"><h3>生成设置</h3></div>
+      <div class="card-body">
+        <div class="field">
+          <label>内容类型</label>
+          <div class="chips" id="contentTypeChips">
+            <button class="chip on" data-t="tiktok">TikTok 脚本</button>
+            <button class="chip" data-t="ig">IG 图文</button>
+            <button class="chip" data-t="shopee">Shopee 详情</button>
+            <button class="chip" data-t="slogan">品牌 Slogan</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>语气风格</label>
+          <select class="select" id="toneSelect">
+            <option>年轻活力 · 朋友种草</option>
+            <option>专业可信 · 成分科普</option>
+            <option>幽默玩梗 · 本地热梗</option>
+            <option>高级质感 · 品牌调性</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>卖点关键词</label>
+          <textarea class="textarea" id="sellingPoint">清爽不黏腻、防水防汗、SPF50+ 高倍防护、妆前可用、不泛白</textarea>
+        </div>
+        <div class="field">
+          <label>目标人群</label>
+          <input class="input" id="audienceInput" value="18-30 岁东南亚女性，关注户外通勤与美妆护肤">
+        </div>
+        <button class="btn btn-primary" id="genContentBtn" style="width:100%">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l3.5 9L26 15l-9.5 3L13 27l-3.5-9L0 15l9.5-3Z" transform="scale(.85) translate(2 1)"/></svg>
+          生成内容
+        </button>
+        <button class="btn btn-ghost btn-sm" id="stopContentBtn" style="width:100%;margin-top:9px;display:none">停止生成</button>
+        <div class="muted" style="font-size:12px;margin-top:12px;line-height:1.7">文案由真实大模型实时生成，非预置模板；切换语种即让模型按目标语言重写。生成后可发起一次 AI 评估，得到四维质量分与合规结论。</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lang-tabs" id="langTabs">
+        <button class="lang-tab on" data-lang="zh">中文母版</button>
+        <button class="lang-tab" data-lang="en">English</button>
+        <button class="lang-tab" data-lang="th">ไทย 泰语</button>
+        <button class="lang-tab" data-lang="id">Bahasa Indonesia</button>
+      </div>
+      <div class="card">
+        <div class="card-body" id="postWrap">
+          <div class="post-card" id="postCard">
+            <div class="post-meta">
+              <span class="badge badge-blue" id="postTypeBadge">TikTok 短视频脚本</span>
+              <span class="badge badge-gray" id="complianceBadge">待合规评估</span>
+              <span class="muted" style="font-size:12px;margin-left:auto" id="postLangLabel">中文母版</span>
+            </div>
+            <div class="post-text" id="postText">先在右上角「模型设置」填入 OpenAI 兼容接口与 Key，再点击左侧「生成内容」，系统将实时调用大模型产出对应语种的真实文案，并由模型完成质量与合规评估。</div>
+            <div class="score-meter" id="scoreMeter" style="display:none">
+              <svg class="score-ring" viewBox="0 0 36 36" id="scoreRing"></svg>
+              <div class="score-detail" id="scoreDetail"></div>
+            </div>
+            <div class="post-actions">
+              <button class="btn btn-soft btn-sm" id="regenBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>
+                重新生成
+              </button>
+              <button class="btn btn-ghost btn-sm" id="copyBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                复制文案
+              </button>
+              <button class="btn btn-ghost btn-sm" id="approveBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                采纳入库
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 视图：效果评估 ===== -->
+<section class="view" id="view-analytics">
+  <div class="metric-strip">
+    <div class="mini-metric"><div class="v">92.4万</div><div class="l">战役 GMV（目标达成率 100.4%）</div></div>
+    <div class="mini-metric"><div class="v">3.62</div><div class="l">综合 ROAS</div></div>
+    <div class="mini-metric"><div class="v">1,840万</div><div class="l">全渠道曝光量</div></div>
+    <div class="mini-metric"><div class="v">4.8%</div><div class="l">互动率（行业基线 2.9%）</div></div>
+  </div>
+
+  <div class="grid analytics-grid">
+    <div class="card">
+      <div class="card-head"><h3>全链路转化漏斗</h3><span class="badge badge-gray">沐光 MUGLOW · 90 天</span></div>
+      <div class="card-body"><div class="chart-box" id="chartFunnel"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>ROAS 与投放成本趋势</h3><span class="badge badge-green">周度智能调优</span></div>
+      <div class="card-body"><div class="chart-box" id="chartRoas"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Agent 产出质量评估</h3><span class="badge badge-blue">六维评分</span></div>
+      <div class="card-body"><div class="chart-box" id="chartRadar"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Token 消耗与单次生成成本</h3><span class="badge badge-gray">月度</span></div>
+      <div class="card-body"><div class="chart-box" id="chartToken"></div></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">智能体量化评估表</h2>
+  <div class="card">
+    <div class="card-body" style="padding:6px 12px">
+      <table class="eval-table">
+        <colgroup><col style="width:14%"><col style="width:15%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:29%"></colgroup>
+        <thead><tr><th>Agent</th><th>一次采纳率</th><th>人工修改率</th><th>平均时延</th><th>单次成本</th><th>评估结论</th></tr></thead>
+        <tbody>
+          <tr><td>洞察官</td><td class="num">91%</td><td class="num">12%</td><td class="num">8.6s</td><td class="num">¥0.42</td><td>数据源覆盖完整，建议扩充越南本地社媒源</td></tr>
+          <tr><td>策略官</td><td class="num">86%</td><td class="num">18%</td><td class="num">12.3s</td><td class="num">¥0.68</td><td>Big Idea 命中率高，策略评审通过率稳定</td></tr>
+          <tr><td>创意官</td><td class="num">84%</td><td class="num">23%</td><td class="num">15.1s</td><td class="num">¥0.95</td><td>短视频钩子表现突出，需强化品牌语气一致性</td></tr>
+          <tr><td>本地化官</td><td class="num">93%</td><td class="num">7%</td><td class="num">6.4s</td><td class="num">¥0.31</td><td>合规拦截零误报，泰语本地化评分最高</td></tr>
+          <tr><td>达人官</td><td class="num">88%</td><td class="num">14%</td><td class="num">10.8s</td><td class="num">¥0.55</td><td>达人履约率 96%，建议补充腰部达人池</td></tr>
+          <tr><td>投放官</td><td class="num">89%</td><td class="num">11%</td><td class="num">实时</td><td class="num">¥0.24</td><td>85% 场景自动决策，人工仅校准 ROI</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="section-title">GEO 生成引擎品牌监测</h2>
+  <div class="grid analytics-grid">
+    <div class="card">
+      <div class="card-head"><h3>品牌提及准确率</h3><span class="badge badge-violet">8 个生成引擎</span></div>
+      <div class="card-body"><div class="chart-box sm" id="chartGeo"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>评估体系说明</h3></div>
+      <div class="card-body">
+        <ul class="feed">
+          <li><div><b>业务价值层</b>：ROAS、GMV 达成率、品牌搜索量、GEO 推荐位次，直接对齐客户合同 KPI。</div></li>
+          <li><div><b>产品质量层</b>：一次采纳率、人工修改率、合规拦截率、输出时延与稳定性，驱动 Agent 迭代。</div></li>
+          <li><div><b>规模成本层</b>：千次任务 Token 成本、模板复用率、人均并行战役数，验证规模化复制能力。</div></li>
+          <li><div>所有指标按周自动回流数据官，低于基线自动触发复盘工单并推送优化建议。</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ===== 视图：模板中心 ===== -->
+<section class="view" id="view-templates">
+  <div class="grid tpl-grid">
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--primary-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#2E5BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
+      <div class="tpl-name">出海新品冷启动</div>
+      <div class="tpl-desc">面向东南亚等新市场的 90 天品牌冷启动，覆盖市场洞察、本地化内容、达人种草与首波效果投放。</div>
+      <div class="tpl-meta"><span class="badge badge-blue">出海</span><span class="badge badge-cyan">90 天</span><span class="badge badge-gray">7 Agent</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="launch">使用模板</button><span class="use-count">已使用 128 次</span></div>
+    </div>
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--success-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#12A37A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+      <div class="tpl-name">达人种草矩阵</div>
+      <div class="tpl-desc">头腰尾达人分层组合，自动匹配、批量邀约与履约追踪，内容策略与效果归因一体化闭环。</div>
+      <div class="tpl-meta"><span class="badge badge-green">达人营销</span><span class="badge badge-gray">全链路</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="creator">使用模板</button><span class="use-count">已使用 96 次</span></div>
+    </div>
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--warning-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#E8912D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+      <div class="tpl-name">大促全域效果投放</div>
+      <div class="tpl-desc">大促节点多渠道智能预算调拨，实时生成千人千面素材，自动出价与 ROI 校准，人工只做目标管理。</div>
+      <div class="tpl-meta"><span class="badge badge-amber">效果广告</span><span class="badge badge-red">实时生成</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="promo">使用模板</button><span class="use-count">已使用 84 次</span></div>
+    </div>
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--violet-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#7A5AF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div class="tpl-name">GEO 品牌心智治理</div>
+      <div class="tpl-desc">监测主流生成引擎中的品牌提及准确率与推荐位次，正向优化品牌知识源，管理 AI 时代的品牌心智。</div>
+      <div class="tpl-meta"><span class="badge badge-violet">GEO</span><span class="badge badge-gray">长期在线</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="geo">使用模板</button><span class="use-count">已使用 42 次</span></div>
+    </div>
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--cyan-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#0891A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="tpl-name">多语言社媒日历运营</div>
+      <div class="tpl-desc">按市场自动生成月度社媒内容日历，多语言批量产出与排期发布，贴合本地节日与文化节点。</div>
+      <div class="tpl-meta"><span class="badge badge-cyan">社媒运营</span><span class="badge badge-gray">多语言</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="calendar">使用模板</button><span class="use-count">已使用 73 次</span></div>
+    </div>
+    <div class="card tpl-card">
+      <div class="tpl-ico" style="background:var(--danger-soft)"><svg viewBox="0 0 24 24" fill="none" stroke="#DC4C46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/></svg></div>
+      <div class="tpl-name">品牌焕新战役</div>
+      <div class="tpl-desc">品牌升级与视觉焕新的整合营销战役，从受众洞察到整合传播节奏，统一线上线下传播口径。</div>
+      <div class="tpl-meta"><span class="badge badge-red">品牌</span><span class="badge badge-gray">整合营销</span></div>
+      <div class="tpl-foot"><button class="btn btn-primary btn-sm tpl-use" data-tpl="rebrand">使用模板</button><span class="use-count">已使用 38 次</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 视图：产品与架构 ===== -->
+<section class="view" id="view-product">
+  <div class="hero-panel">
+    <h1>OrbitAI：一个品牌需求，<br>一支 7×24 在线的 AI 营销团队</h1>
+    <p>基于蓝色光标 BlueAI 能力层构建的 AI Native 营销战役编排平台。把洞察、策略、创意、本地化、达人、投放与复盘封装为可编排的多智能体工作流，人机协同、全球多市场可用，并将每个场景沉淀为可规模化复制的模板。</p>
+    <div class="hero-badges">
+      <span class="badge">多智能体编排</span>
+      <span class="badge">人机协同审核</span>
+      <span class="badge">多语言全球化</span>
+      <span class="badge">量化评估闭环</span>
+      <span class="badge">模板规模化复制</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:24px">
+    <button class="btn btn-primary" id="decisionEntryBtn">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6M18 9a3 3 0 1 0-3-3M18 15c0 3-3 3-3 6"/></svg>
+      查看产品决策记录（6 项关键取舍）
+    </button>
+  </div>
+
+  <h2 class="section-title">业务痛点与机会</h2>
+  <div class="grid pain-grid">
+    <div class="card pain-card">
+      <h4><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      链路割裂，交付靠人传</h4>
+      <p>洞察、策划、创意、投放分散在不同团队与工具，环节间靠人工传递指令，沟通成本高、周期长，质量难以稳定。</p>
+    </div>
+    <div class="card pain-card">
+      <h4><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18"/></svg>
+      出海多市场门槛高</h4>
+      <p>多语言、多文化与合规要求构成出海壁垒，本地人才稀缺；而 AI 在语言、文化场景具备天然优势，最适合在全球化赛道率先落地。</p>
+    </div>
+    <div class="card pain-card">
+      <h4><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+      人力密集，难规模化</h4>
+      <p>传统代理模式依赖人头堆叠，人均并行战役有限；客户需要的不再是一次性项目，而是持续在线、持续学习的智能运营体系。</p>
+    </div>
+  </div>
+
+  <h2 class="section-title">产品价值（试点验证口径）</h2>
+  <div class="grid value-grid">
+    <div class="card value-card"><div class="n">62%</div><div class="l">战役交付周期缩短</div></div>
+    <div class="card value-card"><div class="n">41%</div><div class="l">单战役人力成本下降</div></div>
+    <div class="card value-card"><div class="n">87%</div><div class="l">AI 产出一次采纳率</div></div>
+    <div class="card value-card"><div class="n">5.8</div><div class="l">人均并行战役数</div></div>
+  </div>
+
+  <h2 class="section-title">产品架构</h2>
+  <div class="arch-layers">
+    <div class="arch-layer">
+      <div class="arch-tag" style="background:var(--ink);color:#fff">应用层</div>
+      <div class="arch-items">
+        <span class="arch-item">营销工作台</span><span class="arch-item">智能体工作室</span><span class="arch-item">创意内容中心</span><span class="arch-item">效果评估看板</span><span class="arch-item">持续在线运营 Agent</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-tag" style="background:var(--violet-soft);color:var(--violet)">工作流与模板层</div>
+      <div class="arch-items">
+        <span class="arch-item">可视化工作流编排</span><span class="arch-item">场景模板库</span><span class="arch-item">Skills Market 技能市场</span><span class="arch-item">人工审核节点</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-tag" style="background:var(--primary-soft);color:var(--primary)">Agent 能力层</div>
+      <div class="arch-items">
+        <span class="arch-item">洞察官</span><span class="arch-item">策略官</span><span class="arch-item">创意官</span><span class="arch-item">本地化官</span><span class="arch-item">达人官</span><span class="arch-item">投放官</span><span class="arch-item">数据官</span><span class="arch-item">A2A 协作协议</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-tag" style="background:var(--cyan-soft);color:#0891A8">模型底座层</div>
+      <div class="arch-items">
+        <span class="arch-item">BlueAI 营销行业模型</span><span class="arch-item">多模态视频生成</span><span class="arch-item">推理/生成大模型 API</span><span class="arch-item">营销知识库与数据标注</span><span class="arch-item">数字人能力</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">产品路线图</h2>
+  <div class="card"><div class="card-body">
+    <div class="roadmap">
+      <div class="rm-item done">
+        <div class="rm-time">2026 Q3</div><div class="rm-dot"></div>
+        <div class="rm-body"><h4>MVP：智能体工作室</h4><p>7 个 Agent 完成单战役全链路跑通，支持人机协同审核与基础量化评估，在出海冷启动场景试点。</p></div>
+      </div>
+      <div class="rm-item done">
+        <div class="rm-time">2026 Q4</div><div class="rm-dot"></div>
+        <div class="rm-body"><h4>模板化与创意中心</h4><p>上线场景模板中心与多语言创意中心，一次采纳率目标 85%+，试点团队人均并行战役数提升至 5 个。</p></div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-time">2027 Q1</div><div class="rm-dot"></div>
+        <div class="rm-body"><h4>接入 Agent Cloud 与 Skills Market</h4><p>开放工作流自定义编排与技能市场，支持第三方 Agent 接入，持续在线运营 Agent 替代项目制交付。</p></div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-time">2027 Q2</div><div class="rm-dot"></div>
+        <div class="rm-body"><h4>平台化开放与实时生成</h4><p>能力以云服务形式向行业开放，落地千人千面实时内容生成，拓展中东、拉美等更多海外市场。</p></div>
+      </div>
+    </div>
+  </div></div>
+
+  <h2 class="section-title">Demo 边界说明</h2>
+  <div class="card"><div class="card-body">
+    <ul class="feed">
+      <li><div>本 Demo 为前端高保真交互原型，所有 Agent 输出、指标与图表均为预置的演示数据，不连接真实大模型接口。</div></li>
+      <li><div>真实产品中，Agent 由 BlueAI 模型与多模型 API 驱动，工作流引擎支持 A2A 自主协作、工具调用与权限管控。</div></li>
+      <li><div>产品概念基于蓝色光标公开业务信息独立设计，用于求职作品展示，不代表官方产品。</div></li>
+    </ul>
+  </div></div>
+</section>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="modalTitle">标题</span>
+      <button class="close-x" id="modalClose" aria-label="关闭">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+<!-- 命令面板 -->
+<div class="palette-mask" id="paletteMask">
+  <div class="palette" role="dialog" aria-modal="true" aria-label="命令面板">
+    <div class="palette-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="paletteInput" placeholder="搜索命令、页面或模板…" autocomplete="off">
+      <kbd>ESC</kbd>
+    </div>
+    <div class="palette-list" id="paletteList"></div>
+  </div>
+</div>
+<script>
+/* ============================================================
+   OrbitAI · 真实模型版
+   浏览器直连 OpenAI 兼容接口；Key 仅存 localStorage
+   ============================================================ */
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>Array.from(el.querySelectorAll(s));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ---------- 轻量 Markdown 渲染（先转义，再处理标签） ---------- */
+function inlineMd(s){return s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*([^*]+?)\*/g,'$1<i>$2</i>');}
+function md2html(md){
+  const lines=esc(md).replace(/\r/g,'').split('\n');
+  let out=[],inUl=false,inOl=false;
+  const flush=()=>{if(inUl){out.push('</ul>');inUl=false;}if(inOl){out.push('</ol>');inOl=false;}};
+  for(const raw of lines){
+    const ln=raw;
+    let h=ln.match(/^(#{1,4})\s+(.*)/);
+    if(h){flush();out.push('<h4>'+inlineMd(h[2])+'</h4>');continue;}
+    let u=ln.match(/^\s*[-*]\s+(.*)/), o=ln.match(/^\s*\d+[.)]\s+(.*)/);
+    if(u){if(!inUl){flush();out.push('<ul>');inUl=true;}out.push('<li>'+inlineMd(u[1])+'</li>');continue;}
+    if(o){if(!inOl){flush();out.push('<ol>');inOl=true;}out.push('<li>'+inlineMd(o[1])+'</li>');continue;}
+    if(!ln.trim()){flush();continue;}
+    flush();out.push('<p>'+inlineMd(ln)+'</p>');
+  }
+  flush();
+  return out.join('');
+}
+
+/* ---------- Toast ---------- */
+function toast(msg,type='ok'){
+  const t=document.createElement('div');
+  t.className='toast toast-'+type;
+  t.innerHTML='<span>'+esc(msg)+'</span>';
+  $('#toastWrap').appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},2600);
+}
+
+/* ---------- Modal ---------- */
+function openModal(title,bodyHTML,footHTML,width){
+  $('#modalTitle').textContent=title;
+  $('#modalBody').innerHTML=bodyHTML;
+  $('#modalFoot').innerHTML=footHTML||'<button class="btn btn-primary" id="modalOkBtn">我知道了</button>';
+  $('.modal').style.maxWidth=width||'';
+  $('#modalMask').classList.add('show');
+  const ok=$('#modalOkBtn');if(ok)ok.onclick=closeModal;
+}
+function closeModal(){$('#modalMask').classList.remove('show');}
+$('#modalClose').onclick=closeModal;
+$('#modalMask').addEventListener('click',e=>{if(e.target.id==='modalMask')closeModal();});
+
+/* ============================================================
+   模型设置（厂商预设 + localStorage）
+   ============================================================ */
+const SETTINGS_KEY='orbitai.settings.v2';
+const PRESETS=[
+ {id:'siliconflow',name:'SiliconFlow（国内，含免费模型）',base:'https://api.siliconflow.cn/v1',model:'Qwen/Qwen2.5-7B-Instruct'},
+ {id:'deepseek',name:'DeepSeek',base:'https://api.deepseek.com',model:'deepseek-chat'},
+ {id:'dashscope',name:'通义千问 DashScope（兼容模式）',base:'https://dashscope.aliyuncs.com/compatible-mode/v1',model:'qwen-plus'},
+ {id:'zhipu',name:'智谱 GLM',base:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-flash'},
+ {id:'moonshot',name:'Kimi Moonshot',base:'https://api.moonshot.cn/v1',model:'moonshot-v1-8k'},
+ {id:'openai',name:'OpenAI',base:'https://api.openai.com/v1',model:'gpt-4o-mini'},
+ {id:'openrouter',name:'OpenRouter',base:'https://openrouter.ai/api/v1',model:'openai/gpt-4o-mini'}
+];
+function loadSettings(){
+  try{const v=JSON.parse(localStorage.getItem(SETTINGS_KEY));if(v&&v.base)return v;}catch(e){}
+  return {base:'',key:'',model:'',temperature:0.7};
+}
+let settings=loadSettings();
+function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}
+function endpoint(){return settings.base.replace(/\/+$/,'')+'/chat/completions';}
+function ready(){return !!(settings.base&&settings.key&&settings.model);}
+
+function openSettings(){
+  const opts='<option value="">自定义（手动填写）</option>'+PRESETS.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');
+  const body=
+   '<div class="field"><label>选择厂商（自动填充，可再改）</label><select class="select" id="setPreset">'+opts+'</select></div>'+
+   '<div class="field"><label>接口 Base URL</label><input class="input" id="setBase" placeholder="https://api.deepseek.com"></div>'+
+   '<div class="field"><label>API Key</label><input class="input" id="setKey" type="password" placeholder="sk-...（仅保存在本机浏览器）"></div>'+
+   '<div class="field"><label>模型名称 Model</label><input class="input" id="setModel" placeholder="deepseek-chat"></div>'+
+   '<div class="field"><label>生成温度（0–1）</label><input class="input" id="setTemp" type="number" step="0.1" min="0" max="1"></div>'+
+   '<div class="muted" style="font-size:12px;line-height:1.7">所有厂商均为 OpenAI 兼容协议，请求直接从浏览器发出，Key 不经过任何第三方服务器。直连失败多为 CORS 或 Key 问题，错误信息会原样提示。</div>';
+  openModal('模型设置',body,
+   '<button class="btn btn-ghost" id="setCancel">取消</button><button class="btn btn-primary" id="setSave">保存并测试连接</button>','560px');
+  $('#setBase').value=settings.base;$('#setKey').value=settings.key;
+  $('#setModel').value=settings.model;$('#setTemp').value=settings.temperature;
+  $('#setPreset').onchange=e=>{
+    const p=PRESETS.find(x=>x.id===e.target.value);
+    if(p){$('#setBase').value=p.base;$('#setModel').value=p.model;}
+  };
+  $('#setCancel').onclick=closeModal;
+  $('#setSave').onclick=async()=>{
+    const base=$('#setBase').value.trim(),key=$('#setKey').value.trim(),model=$('#setModel').value.trim(),temp=Number($('#setTemp').value)||0.7;
+    if(!base||!key||!model){toast('Base URL、Key、模型均为必填','err');return;}
+    settings={base,key,model,temperature:temp};saveSettings();updateConn();
+    const btn=$('#setSave');btn.disabled=true;btn.textContent='测试中…';
+    try{
+      const r=await chat({messages:[{role:'user',content:'ping，请回复 ok'}],stream:false,temperature:0});
+      closeModal();toast('连接成功，模型已就绪');
+    }catch(err){toast('连接失败：'+err.message,'err');btn.disabled=false;btn.textContent='保存并测试连接';}
+  };
+}
+function updateConn(){
+  if(ready()){$('#connDot').className='on';$('#connText').textContent=settings.model+' · 已连接';}
+  else{$('#connDot').className='';$('#connText').textContent='未连接模型';}
+}
+$('#settingsTopBtn').onclick=openSettings;
+
+/* ============================================================
+   LLM 客户端（流式 SSE + 非流式 + Abort）
+   ============================================================ */
+async function chat({messages,stream=true,onDelta,signal,temperature,jsonMode}){
+  const payload={model:settings.model,messages,temperature:temperature!=null?temperature:settings.temperature,stream};
+  if(jsonMode)payload.response_format={type:'json_object'};
+  let res;
+  try{
+    res=await fetch(endpoint(),{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+settings.key},
+      body:JSON.stringify(payload),signal
+    });
+  }catch(e){
+    if(e.name==='AbortError')throw e;
+    throw new Error('网络或 CORS 拦截，无法到达接口（'+e.message+'）');
+  }
+  if(!res.ok){
+    let detail='HTTP '+res.status;
+    try{const j=await res.json();detail=j.error?.message||j.message||detail;}catch(e){}
+    throw new Error(detail);
+  }
+  if(!stream){const j=await res.json();return j.choices?.[0]?.message?.content||'';}
+  const reader=res.body.getReader(),dec=new TextDecoder();
+  let buf='',full='';
+  const consumeBlock=block=>{
+    for(const line of block.split('\n')){
+      const t=line.trim();
+      if(!t.startsWith('data:'))continue;
+      const d=t.slice(5).trim();
+      if(d==='[DONE]'||!d)continue;
+      try{
+        const j=JSON.parse(d);
+        const delta=j.choices?.[0]?.delta?.content||'';
+        if(delta){full+=delta;onDelta&&onDelta(delta,full);}
+      }catch(e){}
+    }
+  };
+  while(true){
+    const {done,value}=await reader.read();
+    if(done)break;
+    buf+=dec.decode(value,{stream:true});
+    let idx;
+    while((idx=buf.indexOf('\n\n'))>=0){
+      consumeBlock(buf.slice(0,idx));buf=buf.slice(idx+2);
+    }
+  }
+  buf+=dec.decode();
+  if(buf.trim())consumeBlock(buf);
+  return full;
+}
+
+/* ============================================================
+   路由
+   ============================================================ */
+const ROUTES={
+  dashboard:{title:'营销工作台',crumb:'OrbitAI / 工作空间 / 营销工作台'},
+  studio:{title:'智能体工作室',crumb:'OrbitAI / 工作空间 / 智能体工作室'},
+  content:{title:'创意内容中心',crumb:'OrbitAI / 工作空间 / 创意内容中心'},
+  analytics:{title:'效果评估',crumb:'OrbitAI / 工作空间 / 效果评估'},
+  templates:{title:'场景模板中心',crumb:'OrbitAI / 资产与平台 / 场景模板中心'},
+  product:{title:'产品与架构',crumb:'OrbitAI / 资产与平台 / 产品与架构'}
+};
+const state={flowRunning:false,flowDone:false,gateResolve:null,contentType:'tiktok',lang:'zh',
+  hasPost:false,postStore:{},chartsInited:false,charts:{},ac:null,acContent:null,lastCtx:null,lastBrief:null};
+function go(route){
+  if(!ROUTES[route])route='dashboard';
+  $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+route));
+  $$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.route===route));
+  $('#viewTitle').textContent=ROUTES[route].title;
+  $('#viewCrumb').textContent=ROUTES[route].crumb;
+  location.hash=route;
+  if(route==='analytics')setTimeout(initCharts,60);
+  $('#sidebar').classList.remove('open');$('#sidebarMask').classList.remove('show');
+  window.scrollTo({top:0});
+}
+$$('.nav-item').forEach(n=>n.addEventListener('click',()=>go(n.dataset.route)));
+window.addEventListener('hashchange',()=>{
+  const r=location.hash.replace('#/','').replace('#','');
+  if(ROUTES[r])go(r);
+});
+$('#menuBtn').onclick=()=>{$('#sidebar').classList.add('open');$('#sidebarMask').classList.add('show');};
+$('#sidebarMask').onclick=()=>{$('#sidebar').classList.remove('open');$('#sidebarMask').classList.remove('show');};
+
+/* ---------- Brief 芯片（多选） ---------- */
+function bindChips(boxId,key){
+  $$('#'+boxId+' .chip').forEach(c=>c.onclick=()=>{
+    c.classList.toggle('on');
+    toast((c.classList.contains('on')?'已选择：':'已取消：')+c.dataset[key],'info');
+  });
+}
+bindChips('marketChips','m');bindChips('channelChips','c');
+
+function getBrief(){
+  return {
+    brand:$('#briefBrand').value.trim()||'品牌',
+    product:$('#briefProduct').value.trim(),
+    markets:$$('#marketChips .chip.on').map(c=>c.dataset.m),
+    goal:$('#briefGoal').value,
+    budget:Number($('#briefBudget').value)||0,
+    channels:$$('#channelChips .chip.on').map(c=>c.dataset.c),
+    note:$('#briefNote').value
+  };
+}
+function briefDigest(b){
+  return '【营销 Brief】\n品牌：'+b.brand+'\n核心产品：'+b.product+
+   '\n目标市场：'+(b.markets.join('、')||'—')+'\n战役目标：'+b.goal+
+   '\n投放渠道：'+(b.channels.join('、')||'—')+'\n战役预算：¥'+b.budget.toLocaleString()+
+   '\n补充说明：'+(b.note||'—');
+}
+
+/* ============================================================
+   工作室：7 个真实 Agent + 2 个人工 Gate
+   ============================================================ */
+const NODES=['insight','strategist','gate1','creative','localizer','gate2','creator','media','analytics'];
+const AGENTS={
+  insight:{name:'洞察官',t:'你是营销洞察专家。基于 Brief 做目标市场与社媒洞察：品类趋势、消费者画像与核心痛点、竞品格局与空白机会、平台流量特征。结论要具体、可指导决策，分点输出，避免空话。'},
+  strategist:{name:'策略官',t:'你是品牌策略专家。基于洞察产出：市场定位、目标人群分层、核心卖点优先级、Big Idea 与战役主题、关键信息屋。要给出明确选择而非罗列。'},
+  creative:{name:'创意官',t:'你是资深创意文案。基于策略产出内容矩阵（内容线及占比）、3 条以上可直接使用的钩子、短视频脚本框架、视觉 Brief。文案要像真实营销作品，不要套话。'},
+  localizer:{name:'本地化官',t:'你是跨文化本地化与合规专家。针对每个目标市场给出本地化表达建议、文化与宗教合规风险点及替换方案、多语言文案要点。明确指出哪些表述必须拦截。'},
+  creator:{name:'达人官',t:'你是达人营销专家。给出达人分层组合（头/腰/尾数量与角色）、选型标准、合作与计费模式、邀约与履约流程，以及预期产出量级。'},
+  media:{name:'投放官',t:'你是效果投放专家。基于渠道给出渠道组合逻辑、出价与风控策略、预算动态再分配规则、分阶段投放节奏与优化触发条件。'},
+  analytics:{name:'数据官',t:'你是营销数据专家。设计度量体系与归因口径、核心 KPI 与基线、复盘节奏与预警规则、GEO 品牌提及监测方案。'}
+};
+function setNode(id,cls,stateText){
+  const node=$('.agent-node[data-node="'+id+'"]');
+  node.classList.remove('pending','running','done');node.classList.add(cls);
+  if(stateText)$('.agent-state',node).textContent=stateText;
+}
+function logLine(cls,text){
+  const d=document.createElement('div');d.className='log-line '+cls;d.textContent=text;
+  $('#runLog').appendChild(d);$('#runLog').scrollTop=$('#runLog').scrollHeight;
+}
+function buildUser(b,ctx,extra){
+  let prior='';
+  for(const k of NODES){
+    if(ctx[k]&&AGENTS[k])prior+='\n\n<'+AGENTS[k].name+' 的产出>\n'+ctx[k];
+  }
+  return briefDigest(b)+(prior?'\n\n【前序节点产出】'+prior:'')+(extra?'\n\n【人工审核意见】'+extra:'');
+}
+async function runAgentNode(id,b,ctx,extra){
+  const a=AGENTS[id];
+  setNode(id,'running','真实调用中…');
+  logLine('info','▶ '+a.name+' 发起 LLM 请求');
+  const t0=Date.now();
+  const streamBox=document.createElement('div');streamBox.className='log-line live';
+  streamBox.innerHTML='<b>'+a.name+'</b>：<span class="live-text"></span>';
+  $('#runLog').appendChild(streamBox);$('.live-text',streamBox);
+  const liveEl=$('.live-text',streamBox);
+  state.ac=new AbortController();
+  const out=await chat({
+    messages:[{role:'system',content:a.t},{role:'user',content:buildUser(b,ctx,extra)}],
+    signal:state.ac.signal,
+    onDelta:(d,full)=>{liveEl.textContent=full.slice(-240);$('#runLog').scrollTop=$('#runLog').scrollHeight;}
+  });
+  streamBox.remove();
+  ctx[id]=out;
+  setNode(id,'done','已产出 · '+Date.now()-t0+'ms');
+  logLine('ok','✓ '+a.name+' 完成，用时 '+((Date.now()-t0)/1000).toFixed(1)+'s，约 '+out.length+' 字');
+}
+async function runGate(id,prevId,b,ctx){
+  setNode(id,'running','等待人工审核…');
+  logLine('warn','◆ 到达人工审核，流程暂停');
+  const node=$('.agent-node[data-node="'+id+'"]'),main=$('.agent-main',node);
+  while(true){
+    if(!$('.gate-actions',main)){
+      const acts=document.createElement('div');acts.className='gate-actions';
+      acts.innerHTML='<textarea class="textarea gate-note" placeholder="可选：填写调整意见（要求调整时生效）"></textarea>'+
+        '<button class="btn btn-primary btn-sm gate-ok">审核通过，继续</button>'+
+        '<button class="btn btn-ghost btn-sm gate-edit">要求调整</button>';
+      main.appendChild(acts);
+    }
+    await new Promise(res=>{state.gateResolve=res;});
+    if(state.gateChoice==='ok')break;
+    const note=$('.gate-note',main).value.trim();
+    logLine('warn','收到调整意见，回退 '+AGENTS[prevId].name+' 重新生成');
+    setNode(prevId,'running','按人工意见重新生成…');
+    await runAgentNode(prevId,b,ctx,note||'请主动改进上一版，使其更可落地');
+    setNode(prevId,'done','已按意见修订');
+  }
+  setNode(id,'done','人工审核通过');
+  const acts=$('.gate-actions',main);if(acts)acts.remove();
+  logLine('ok','◆ 审核通过，流程继续');
+}
+$('#agentFlow').addEventListener('click',e=>{
+  if(e.target.classList.contains('gate-ok')){state.gateChoice='ok';state.gateResolve&&state.gateResolve();}
+  if(e.target.classList.contains('gate-edit')){state.gateChoice='edit';state.gateResolve&&state.gateResolve();}
+});
+async function runFlow(){
+  if(state.flowRunning)return;
+  if(!ready()){openSettings();toast('请先接入模型再启动工作流','err');return;}
+  const b=getBrief();
+  if(!b.markets.length){toast('请至少选择一个目标市场','err');return;}
+  if(!b.channels.length){toast('请至少选择一个投放渠道','err');return;}
+  state.flowRunning=true;state.flowDone=false;
+  $('#runFlowBtn').disabled=true;$('#resetFlowBtn').textContent='停止运行';
+  $('#flowStatusBadge').className='badge badge-blue';$('#flowStatusBadge').textContent='运行中';
+  $('#runLog').innerHTML='';
+  logLine('dim','工作流启动 · 真实模型：'+settings.model);
+  logLine('dim',b.brand+' / '+b.markets.join('、')+' / 预算 ¥'+b.budget.toLocaleString());
+  switchRunTab('flow');
+  const ctx={};
+  try{
+    for(let i=0;i<NODES.length;i++){
+      const id=NODES[i];
+      if(id.startsWith('gate'))await runGate(id,NODES[i-1],b,ctx);
+      else await runAgentNode(id,b,ctx);
+    }
+    logLine('ok','■ 全部节点完成，交付方案已生成');
+    state.flowDone=true;
+    $('#flowStatusBadge').className='badge badge-green';$('#flowStatusBadge').textContent='已完成';
+    state.lastCtx=ctx;state.lastBrief=b;
+    buildDeliverables(b,ctx);
+    toast('战役方案已生成，可在「交付方案」查看');
+    await sleep(600);switchRunTab('deliverable');
+  }catch(e){
+    if(e.name==='AbortError'){logLine('warn','■ 运行已手动停止');toast('已停止运行','info');}
+    else{logLine('err','■ 出错：'+e.message);toast('运行失败：'+e.message,'err');}
+  }finally{
+    state.flowRunning=false;
+    $('#runFlowBtn').disabled=false;$('#resetFlowBtn').textContent='重置工作流';
+  }
+}
+function resetFlow(){
+  if(state.flowRunning){state.ac&&state.ac.abort();return;}
+  state.flowDone=false;
+  NODES.forEach(id=>{
+    const node=$('.agent-node[data-node="'+id+'"]');
+    node.classList.remove('running','done');node.classList.add('pending');
+    $('.agent-state',node).textContent='等待中';
+    const a=$('.gate-actions',node);if(a)a.remove();
+  });
+  $('#runLog').innerHTML='<div class="dim">OrbitAI Agent Runtime · 真实模型模式</div><div class="dim">点击「启动工作流」，每个 Agent 都会发起真实 LLM 调用</div>';
+  $('#flowStatusBadge').className='badge badge-gray';$('#flowStatusBadge').textContent='待启动';
+  $('#deliContent').style.display='none';$('#deliEmpty').style.display='flex';
+  switchRunTab('flow');toast('工作流已重置','info');
+}
+$('#runFlowBtn').onclick=runFlow;$('#resetFlowBtn').onclick=resetFlow;
+
+/* ---------- 运行区 Tab ---------- */
+function switchRunTab(tab){
+  $$('[data-run-tab]').forEach(t=>t.classList.toggle('on',t.dataset.runTab===tab));
+  $('#runTabFlow').style.display=tab==='flow'?'block':'none';
+  $('#runTabDeliverable').classList.toggle('show',tab==='deliverable');
+}
+$$('[data-run-tab]').forEach(t=>t.onclick=()=>{
+  if(t.dataset.runTab==='deliverable'&&!state.flowDone){toast('请先完成工作流','err');return;}
+  switchRunTab(t.dataset.runTab);
+});
+$$('[data-deli-tab]').forEach(t=>t.onclick=()=>{
+  $$('[data-deli-tab]').forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  $$('.deli-tab').forEach(p=>p.classList.toggle('on',p.id===t.dataset.deliTab));
+});
+
+/* ---------- 真实交付物（d1-d3 为模型产出，d4-d5 为真实计算） ---------- */
+function ganttRow(label,start,span,color){
+  return '<div class="gl" style="grid-column:1">'+label+'</div>'+
+   '<div class="cell" style="grid-column:'+(start+1)+' / span '+span+';background:'+color+'">'+label+'</div>';
+}
+function buildDeliverables(b,ctx){
+  $('#d1').innerHTML='<div class="deli-block">'+md2html(ctx.insight)+'</div><div class="deli-block">'+md2html(ctx.strategist)+'</div>';
+  $('#d2').innerHTML='<div class="deli-block">'+md2html(ctx.creative)+'</div><div class="deli-block">'+md2html(ctx.localizer)+'</div>';
+  $('#d3').innerHTML='<div class="deli-block">'+md2html(ctx.creator)+'</div><div class="deli-block">'+md2html(ctx.media)+'</div>';
+  const plan=[['达人合作',.38,'var(--success)'],['效果投放',.34,'var(--primary)'],['内容制作',.16,'var(--violet)'],['平台与工具',.07,'var(--cyan)'],['机动预留',.05,'var(--text-3)']];
+  let bh='<div class="deli-block"><h4>预算分配（总预算 ¥'+b.budget.toLocaleString()+'，由 Brief 实时计算）</h4>';
+  plan.forEach(([name,pct,color])=>{
+    bh+='<div class="budget-row"><span class="name">'+name+'</span><span class="bar"><i style="width:'+(pct*100)+'%;background:'+color+'"></i></span><span class="val">¥'+Math.round(b.budget*pct).toLocaleString()+' · '+Math.round(pct*100)+'%</span></div>';
+  });
+  bh+='</div><div class="deli-block">'+md2html(ctx.media)+'</div>';
+  $('#d4').innerHTML=bh;
+  $('#d5').innerHTML='<div class="deli-block">'+md2html(ctx.analytics)+'</div>'+
+   '<div class="deli-block"><h4>8 周执行排期（按 90 天窗口计算）</h4><div class="gantt">'+
+   '<div class="gh"></div><div class="gh">W1</div><div class="gh">W2</div><div class="gh">W3</div><div class="gh">W4</div><div class="gh">W5</div><div class="gh">W6</div><div class="gh">W7</div><div class="gh">W8</div>'+
+   ganttRow('洞察准备',1,2,'#7A5AF8')+ganttRow('内容生产',2,3,'#E8912D')+ganttRow('达人合作',3,4,'#12A37A')+
+   ganttRow('投放放量',4,5,'#2E5BFF')+ganttRow('复盘优化',7,2,'#06B6D4')+'</div></div>';
+  $('#deliEmpty').style.display='none';$('#deliContent').style.display='block';
+}
+
+/* ---------- 导出真实文件 / 保存模板 ---------- */
+$('#exportBtn').onclick=()=>{
+  if(!state.lastCtx||!state.lastBrief){toast('请先完成工作流再导出方案','err');return;}
+  const b=state.lastBrief,ctx=state.lastCtx;
+  let content='# OrbitAI 战役方案 · '+b.brand+'\n\n'+briefDigest(b)+'\n';
+  NODES.forEach(id=>{
+    if(AGENTS[id]&&ctx[id])content+='\n\n---\n\n## '+AGENTS[id].name+'\n\n'+ctx[id];
+  });
+  const safe=(b.brand||'brand').replace(/[\\/:*?"<>|]/g,'_').trim()||'brand';
+  const blob=new Blob([content],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='orbitai-'+safe+'-方案.md';a.click();
+  URL.revokeObjectURL(a.href);toast('已导出真实 Markdown 方案');
+};
+$('#saveTplBtn').onclick=()=>{
+  const b=getBrief();
+  const list=JSON.parse(localStorage.getItem('orbitai.myTpls')||'[]');
+  list.push({brand:b.brand,markets:b.markets,channels:b.channels,goal:b.goal,ts:Date.now()});
+  localStorage.setItem('orbitai.myTpls',JSON.stringify(list));
+  toast('已存为我的模板（本机保存）');
+};
+
+/* ============================================================
+   创意内容中心：真实开放式生成 + AI 评估
+   ============================================================ */
+const TYPE_LABEL={tiktok:'TikTok 短视频脚本',ig:'Instagram 图文',shopee:'Shopee 商品详情',slogan:'品牌 Slogan'};
+const LANG_NAME={zh:'简体中文',en:'English',th:'ไทย 泰语',id:'Bahasa Indonesia'};
+$$('#contentTypeChips .chip').forEach(c=>c.onclick=()=>{
+  $$('#contentTypeChips .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');
+  state.contentType=c.dataset.t;state.hasPost=false;
+  $('#postTypeBadge').textContent=TYPE_LABEL[c.dataset.t];
+  $('#postText').textContent='已切换类型，点击「生成内容」获取真实文案。';
+  $('#scoreMeter').style.display='none';
+});
+$$('#langTabs .lang-tab').forEach(t=>t.onclick=()=>{
+  $$('#langTabs .lang-tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  state.lang=t.dataset.lang;$('#postLangLabel').textContent=LANG_NAME[t.dataset.lang];
+  const saved=state.postStore[t.dataset.lang];
+  if(saved){renderPost(saved);}
+  else{$('#postText').textContent='该语种尚未生成，点击「生成内容」让模型按 '+LANG_NAME[t.dataset.lang]+' 输出。';$('#scoreMeter').style.display='none';}
+});
+function renderPost(text){
+  $('#postText').innerHTML=esc(text).replace(/\n/g,'<br>');
+}
+async function genContent(){
+  if(state.flowRunning){toast('工作室工作流运行中，请先停止或等待完成','err');return;}
+  if(!ready()){openSettings();toast('请先接入模型','err');return;}
+  const b=getBrief();
+  const type=TYPE_LABEL[state.contentType],tone=$('#toneSelect').value,
+    points=$('#sellingPoint').value.trim(),aud=$('#audienceInput').value.trim(),
+    langName=LANG_NAME[state.lang];
+  const sys='你是蓝色光标 OrbitAI 的资深营销创意官，面向品牌出海场景。根据用户给出的真实信息创作，严禁套用固定模板，输出要具体、可直接投放，使用 Markdown 排版。';
+  const user='请创作一份「'+type+'」。\n品牌：'+b.brand+'\n产品：'+b.product+
+   '\n目标人群：'+aud+'\n卖点关键词：'+points+'\n语气风格：'+tone+
+   '\n目标语言：'+langName+'（必须全部使用该语言输出；中文关键词若无对应外文，请意译而非保留中文）'+
+   '\n只输出成品内容，不要解释。';
+  state.hasPost=true;
+  $('#genContentBtn').disabled=true;$('#stopContentBtn').style.display='block';
+  $('#complianceBadge').className='badge badge-gray';$('#complianceBadge').textContent='评估中…';
+  state.acContent=new AbortController();
+  let full='';
+  try{
+    full=await chat({
+      messages:[{role:'system',content:sys},{role:'user',content:user}],
+      signal:state.acContent.signal,
+      onDelta:(d,all)=>{renderPost(all);}
+    });
+    state.postStore[state.lang]=full;
+    await evaluateContent(full,type);
+  }catch(e){
+    if(e.name==='AbortError'){toast('已停止生成','info');$('#complianceBadge').textContent='待合规评估';}
+    else{toast('生成失败：'+e.message,'err');$('#complianceBadge').textContent='待合规评估';}
+  }finally{
+    $('#genContentBtn').disabled=false;$('#stopContentBtn').style.display='none';
+  }
+}
+async function evaluateContent(text,type){
+  const sys='你是严格的内容质量评审。对给定营销内容打分并做合规判断，只输出 JSON。';
+  const user='评分维度（0-100 整数）：relevance 卖点相关性、localization 本地化表达、tone 品牌语气、cta 行动号召。'+
+   '返回 JSON：{"relevance":0,"localization":0,"tone":0,"cta":0,"compliance":"pass 或 risk","note":"一句话合规说明","comment":"一句话总评"}。内容：\n'+text;
+  try{
+    let raw;
+    try{
+      raw=await chat({messages:[{role:'system',content:sys},{role:'user',content:user}],stream:false,jsonMode:true,temperature:0});
+    }catch(e1){
+      raw=await chat({messages:[{role:'system',content:sys},{role:'user',content:user}],stream:false,temperature:0});
+    }
+    const m=raw.match(/\{[\s\S]*\}/);
+    const j=JSON.parse(m?m[0]:raw);
+    const dims=[j.relevance,j.localization,j.tone,j.cta].map(v=>Math.max(0,Math.min(100,Number(v)||0)));
+    const avg=Math.round(dims.reduce((a,x)=>a+x,0)/4);
+    renderScore(avg,dims,j.comment||'');
+    if(j.compliance==='pass'){$('#complianceBadge').className='badge badge-green';$('#complianceBadge').textContent='合规检查通过';}
+    else{$('#complianceBadge').className='badge badge-red';$('#complianceBadge').textContent='存在合规风险';}
+    if(j.note)toast('合规：'+j.note,'info');
+  }catch(e){
+    $('#complianceBadge').textContent='评估不可用';
+    toast('AI 评估失败：'+e.message,'info');
+  }
+}
+function renderScore(avg,dims,comment){
+  $('#scoreMeter').style.display='flex';
+  const r=$('#scoreRing');
+  const circ=2*Math.PI*15.915;
+  r.innerHTML='<circle cx="18" cy="18" r="15.915" class="ring-bg"/><circle cx="18" cy="18" r="15.915" class="ring-fg" stroke-dasharray="'+avg+',100"/>'+
+   '<text x="18" y="20.5" text-anchor="middle" class="ring-num">'+avg+'</text>';
+  const names=['卖点相关性','本地化表达','品牌语气','行动号召'];
+  $('#scoreDetail').innerHTML=names.map((n,i)=>'<div class="sd-row"><span>'+n+'</span><b>'+dims[i]+'</b></div>').join('')+'<div class="muted" style="font-size:12px;margin-top:4px">'+esc(comment)+'</div>';
+}
+$('#genContentBtn').onclick=genContent;
+$('#stopContentBtn').onclick=()=>state.acContent&&state.acContent.abort();
+$('#regenBtn').onclick=genContent;
+$('#copyBtn').onclick=async()=>{
+  const t=state.postStore[state.lang];
+  if(!t){toast('请先生成内容','err');return;}
+  try{await navigator.clipboard.writeText(t);toast('已复制到剪贴板');}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已复制');}
+};
+$('#approveBtn').onclick=()=>{
+  if(!state.postStore[state.lang]){toast('请先生成内容','err');return;}
+  const key='orbitai.approved';const list=JSON.parse(localStorage.getItem(key)||'[]');
+  list.push({lang:state.lang,type:state.contentType,ts:Date.now()});
+  localStorage.setItem(key,JSON.stringify(list));toast('已采纳入库（本机记录）');
+};
+
+/* ============================================================
+   模板（Brief 预设，仅填输入，不预置输出）
+   ============================================================ */
+const TPL_PRESETS={
+  launch:{goal:0,markets:['泰国','印尼'],channels:['TikTok','Instagram','Shopee']},
+  creator:{goal:1,markets:['泰国','印尼'],channels:['TikTok','Instagram']},
+  promo:{goal:2,markets:['泰国','印尼','新加坡'],channels:['TikTok','Meta','Google','Shopee']},
+  geo:{goal:3,markets:['新加坡'],channels:['TikTok','Meta']},
+  calendar:{goal:0,markets:['泰国','印尼','越南'],channels:['TikTok','Instagram']},
+  rebrand:{goal:0,markets:['新加坡'],channels:['Meta','Instagram','Google']}
+};
+function applyTpl(key){
+  const p=TPL_PRESETS[key];
+  $$('#marketChips .chip').forEach(c=>c.classList.toggle('on',p.markets.includes(c.dataset.m)));
+  $$('#channelChips .chip').forEach(c=>c.classList.toggle('on',p.channels.includes(c.dataset.c)));
+  $('#briefGoal').selectedIndex=p.goal;go('studio');
+  toast('模板已载入 Brief，输出仍由模型真实生成');
+}
+$$('.tpl-use').forEach(btn=>btn.onclick=()=>applyTpl(btn.dataset.tpl));
+const nc=$('#newCampaignBtn');if(nc)nc.onclick=()=>go('studio');
+$$('[data-open-project]').forEach(c=>c.onclick=()=>go('studio'));
+$$('[data-quick]').forEach(b=>b.onclick=()=>go(b.dataset.quick));
+
+$('#demoGuideBtn').onclick=()=>openModal('演示导览（真实模型版）',
+ '<ol style="font-size:13.5px;line-height:2.1;padding-left:18px">'+
+ '<li>右上角「模型设置」填入 OpenAI 兼容接口与 Key，连接测试通过</li>'+
+ '<li><b>工作室</b>启动工作流，看 7 个 Agent 真实流式生成、产物逐节点流转</li>'+
+ '<li>人工 Gate 可通过或填意见要求调整（回退重生成）</li>'+
+ '<li><b>内容中心</b>改任意输入后生成，切换 4 语种由模型分别输出，并自动 AI 评分</li>'+
+ '<li>可导出真实 Markdown 方案；效果评估页图表为演示口径</li></ol>',
+ '<button class="btn btn-ghost" id="modalClose2">稍后再看</button><button class="btn btn-primary" id="guideGo">去设置模型</button>');
+$('#modalFoot').addEventListener('click',e=>{
+  if(e.target.id==='modalClose2')closeModal();
+  if(e.target.id==='guideGo'){closeModal();openSettings();}
+});
+
+/* ============================================================
+   命令面板
+   ============================================================ */
+const PI_ICO={
+  nav:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>',
+  tpl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/></svg>',
+  decision:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6M18 9a3 3 0 1 0-3-3M18 15c0 3-3 3-3 6"/></svg>',
+  guide:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16 7.8 13.4 13.4 7.8 16.2 10.6 10.6 16.2 7.8"/></svg>'
+};
+const COMMANDS=[];
+[['dashboard','营销工作台'],['studio','智能体工作室'],['content','创意内容中心'],['analytics','效果评估'],['templates','场景模板中心'],['product','产品与架构']]
+ .forEach(([r,label])=>COMMANDS.push({group:'页面导航',label,ico:PI_ICO.nav,run:()=>go(r)}));
+COMMANDS.push({group:'设置',label:'模型设置 · 接入大模型',ico:PI_ICO.set,run:openSettings});
+COMMANDS.push({group:'战役',label:'新建战役 · 启动工作流',ico:PI_ICO.play,run:()=>go('studio')});
+const TPL_NAMES={launch:'出海新品冷启动',creator:'达人种草矩阵',promo:'大促全域效果投放',geo:'GEO 品牌心智治理',calendar:'多语言社媒日历运营',rebrand:'品牌焕新战役'};
+Object.keys(TPL_NAMES).forEach(k=>COMMANDS.push({group:'场景模板',label:'从模板开始：'+TPL_NAMES[k],ico:PI_ICO.tpl,run:()=>applyTpl(k)}));
+COMMANDS.push({group:'其他',label:'查看产品决策记录',ico:PI_ICO.decision,run:openDecisions});
+COMMANDS.push({group:'其他',label:'打开演示导览',ico:PI_ICO.guide,run:()=>$('#demoGuideBtn').click()});
+let palItems=[],palSel=0;
+function renderPalette(q){
+  const query=q.trim().toLowerCase();
+  const list=COMMANDS.filter(c=>!query||c.label.toLowerCase().includes(query));
+  palItems=list;if(palSel>list.length-1)palSel=0;
+  if(!list.length){$('#paletteList').innerHTML='<div class="palette-empty">没有匹配的命令</div>';return;}
+  let html='',last=null;
+  list.forEach((c,i)=>{
+    if(c.group!==last){html+='<div class="palette-group">'+c.group+'</div>';last=c.group;}
+    html+='<button class="palette-item'+(i===palSel?' sel':'')+'" data-pi="'+i+'"><span class="pi-ico">'+c.ico+'</span><span>'+c.label+'</span></button>';
+  });
+  $('#paletteList').innerHTML=html;
+}
+function openPalette(){
+  $('#paletteMask').classList.add('show');$('#paletteInput').value='';palSel=0;
+  renderPalette('');setTimeout(()=>$('#paletteInput').focus(),30);
+}
+function closePalette(){$('#paletteMask').classList.remove('show');}
+function scrollSel(){const el=$('.palette-item.sel');if(el)el.scrollIntoView({block:'nearest'});}
+function runPalCommand(){const c=palItems[palSel];if(!c)return;closePalette();c.run();}
+$('#paletteTopBtn').onclick=openPalette;
+$('#paletteMask').addEventListener('click',e=>{if(e.target.id==='paletteMask')closePalette();});
+$('#paletteInput').addEventListener('input',e=>{palSel=0;renderPalette(e.target.value);});
+$('#paletteInput').addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palSel+1,palItems.length-1);renderPalette($('#paletteInput').value);scrollSel();}
+  else if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(palSel-1,0);renderPalette($('#paletteInput').value);scrollSel();}
+  else if(e.key==='Enter'){e.preventDefault();runPalCommand();}
+  else if(e.key==='Escape')closePalette();
+});
+$('#paletteList').addEventListener('click',e=>{
+  const btn=e.target.closest('.palette-item');if(!btn)return;
+  palSel=Number(btn.dataset.pi);runPalCommand();
+});
+window.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){
+    e.preventDefault();
+    if($('#paletteMask').classList.contains('show'))closePalette();else openPalette();
+  }
+});
+
+/* ============================================================
+   产品决策记录
+   ============================================================ */
+const DECISIONS=[
+ {q:'为什么做「编排工作台」，而不是单点 AI 文案工具？',
+  pick:'做覆盖洞察到复盘的多智能体编排平台，把链路本身做成产品。',drop:'先做独立 AI 文案/图片生成器。',
+  why:'蓝标痛点是链路割裂与人力难规模化，单点工具易被通用大模型替代；编排平台对齐 Agent Cloud / Skills Market，壁垒更高。'},
+ {q:'为什么把人工审核做成强制节点，而不是追求全自动化？',
+  pick:'保留两个强制人工 Gate，支持回退修订。',drop:'用「无人值守、一键全自动」叙事。',
+  why:'品牌安全与跨文化合规决定了 85% 可自动、15% 必须人校准；Gate 是企业客户的信任机制。'},
+ {q:'为什么默认场景选「出海东南亚冷启动」？',
+  pick:'虚构个护品牌进军泰国、印尼、90 天冷启动。',drop:'用国内大促或成熟市场做主场景。',
+  why:'出海贡献 80% 以上营收；东南亚多语言多文化最能放大本地化 Agent，冷启动可走通全链路。'},
+ {q:'为什么用「自带 Key、浏览器直连」而不是后端代理？',
+  pick:'OpenAI 兼容直连，Key 仅存本机 localStorage。',drop:'由平台后端统一托管密钥。',
+  why:'单文件零后端即可真实运行，用户对 Key 完全可控、不经过第三方；代价是依赖厂商 CORS，企业版再上后端密钥管理。'},
+ {q:'为什么评估体系要同时考核业务、质量、成本三层？',
+  pick:'业务 KPI、产出质量、Token 成本并行。',drop:'只看模型准确率或内容评分。',
+  why:'AI 产品要同时回答客户、团队、公司三类问题，只看模型效果证明不了商业价值。'},
+ {q:'为什么创意评分也用模型调用，而不是写死公式？',
+  pick:'生成后由评审模型按四维真实打分并判断合规。',drop:'用确定性哈希伪造一个分数。',
+  why:'假分数会被面试官识破，真实评审调用体现「可量化评估标准」的产品闭环；评估失败则诚实提示而非编造。'}
+];
+function openDecisions(){
+  const body='<div style="margin-bottom:14px;font-size:12.5px;color:var(--text-2);line-height:1.7">每个选择都对应一个被放弃的方案及理由。</div>'+
+   DECISIONS.map(d=>'<div class="dec-card"><div class="dec-q">'+d.q+'</div>'+
+    '<div class="dec-row dec-pick"><span class="dec-tag">选择</span><p>'+d.pick+'</p></div>'+
+    '<div class="dec-row dec-drop"><span class="dec-tag">放弃</span><p>'+d.drop+'</p></div>'+
+    '<div class="dec-why"><b>理由：</b>'+d.why+'</div></div>').join('');
+  openModal('产品决策记录（6 项关键取舍）',body,'<button class="btn btn-primary" id="modalOkBtn">我知道了</button>','680px');
+}
+$('#decisionEntryBtn').onclick=openDecisions;
+
+/* ============================================================
+   ECharts（效果评估页，演示口径）
+   ============================================================ */
+const COMMON={tooltip:{backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true},grid:{left:52,right:26,top:38,bottom:38}};
+function chartFallback(){
+  $$('.chart-box').forEach(box=>{if(!box.dataset.fallback){box.dataset.fallback='1';box.innerHTML='<div class="run-empty" style="padding:30px"><div>图表库加载失败，请检查网络后刷新</div></div>';}});
+}
+function initCharts(){
+  if(typeof echarts==='undefined'){chartFallback();return;}
+  if(state.chartsInited){Object.values(state.charts).forEach(c=>c.resize());return;}
+  state.chartsInited=true;
+  const axisLabel={color:'#8C96AB',fontSize:11},splitLine={lineStyle:{color:'#EEF1F6'}};
+  state.charts.funnel=echarts.init($('#chartFunnel'));
+  state.charts.funnel.setOption({
+    color:['#2E5BFF','#3D72FF','#5B8BFF','#7AA5FF','#9DBEFF'],
+    tooltip:{trigger:'item',backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true,formatter:'{b}<br>{c}'},
+    series:[{type:'funnel',left:'8%',right:'8%',top:14,bottom:8,minSize:'28%',gap:3,
+      label:{color:'#54607A',fontSize:12,formatter:'{b}  {c} 万'},
+      itemStyle:{borderColor:'#fff',borderWidth:2,borderRadius:4},
+      data:[{value:1840,name:'曝光'},{value:212,name:'点击'},{value:88,name:'互动'},{value:18.4,name:'加购'},{value:6.9,name:'下单'}]}]
+  });
+  state.charts.roas=echarts.init($('#chartRoas'));
+  state.charts.roas.setOption({
+    tooltip:{trigger:'axis',backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true},grid:COMMON.grid,
+    xAxis:{type:'category',data:['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'],axisLabel,axisLine:{lineStyle:{color:'#D5DCEA'}},axisTick:{show:false}},
+    yAxis:{type:'value',min:1.8,max:3.8,axisLabel,splitLine},
+    series:[{name:'ROAS',type:'line',smooth:true,data:[2.1,2.25,2.4,2.6,2.55,2.8,3.0,3.1,3.25,3.35,3.5,3.62],
+      symbol:'circle',symbolSize:7,lineStyle:{width:3,color:'#2E5BFF'},itemStyle:{color:'#2E5BFF'},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(46,91,255,.18)'},{offset:1,color:'rgba(46,91,255,.01)'}])},
+      markLine:{symbol:'none',label:{formatter:'行业基线 2.9',color:'#E8912D',fontSize:11,position:'insideStartTop'},lineStyle:{color:'#E8912D',type:'dashed'},data:[{yAxis:2.9}]}}]
+  });
+  state.charts.radar=echarts.init($('#chartRadar'));
+  state.charts.radar.setOption({
+    tooltip:{backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true},
+    radar:{indicator:[{name:'策略准确性',max:100},{name:'内容质量',max:100},{name:'本地化合规',max:100},{name:'响应速度',max:100},{name:'成本效率',max:100},{name:'业务结果',max:100}],
+      radius:'66%',center:['50%','54%'],axisName:{color:'#54607A',fontSize:11.5},
+      splitLine:{lineStyle:{color:'#E6EAF2'}},splitArea:{areaStyle:{color:['#fff','#F8FAFD']}},axisLine:{lineStyle:{color:'#E6EAF2'}}},
+    series:[{type:'radar',data:[{value:[88,85,94,90,86,89],name:'Agent 综合评分',
+      areaStyle:{color:'rgba(46,91,255,.16)'},lineStyle:{color:'#2E5BFF',width:2},itemStyle:{color:'#2E5BFF'}}]}]
+  });
+  state.charts.token=echarts.init($('#chartToken'));
+  state.charts.token.setOption({
+    tooltip:{trigger:'axis',backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true,formatter:p=>p[0].name+'<br>Token 消耗：'+p[0].value+' 亿'},
+    grid:COMMON.grid,
+    xAxis:{type:'category',data:['6月','7月','8月','9月','10月','11月'],axisLabel,axisLine:{lineStyle:{color:'#D5DCEA'}},axisTick:{show:false}},
+    yAxis:{type:'value',name:'亿',nameTextStyle:{color:'#8C96AB',fontSize:11},axisLabel,splitLine},
+    series:[{type:'bar',barWidth:24,data:[620,740,980,1180,1420,1680],
+      itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#4D74FF'},{offset:1,color:'#2E5BFF'}]),borderRadius:[5,5,0,0]}}]
+  });
+  state.charts.geo=echarts.init($('#chartGeo'));
+  state.charts.geo.setOption({
+    tooltip:{trigger:'axis',backgroundColor:'#17233E',borderWidth:0,textStyle:{color:'#fff',fontSize:12},confine:true,formatter:p=>p[0].name+'<br>提及准确率：'+p[0].value+'%'},
+    grid:{left:78,right:44,top:14,bottom:24},
+    xAxis:{type:'value',max:100,axisLabel:{color:'#8C96AB',fontSize:11,formatter:'{value}%'},splitLine},
+    yAxis:{type:'category',inverse:true,data:['ChatGPT','Gemini','Claude','Perplexity','豆包','文心一言','通义','Kimi'],axisLabel:{color:'#54607A',fontSize:12},axisLine:{show:false},axisTick:{show:false}},
+    series:[{type:'bar',barWidth:13,data:[94,92,91,89,88,86,85,83],
+      itemStyle:{color:'#7A5AF8',borderRadius:[0,4,4,0]},
+      label:{show:true,position:'right',formatter:'{c}%',color:'#54607A',fontSize:11.5,fontWeight:600}}]
+  });
+  window.addEventListener('resize',()=>Object.values(state.charts).forEach(c=>c.resize()));
+}
+
+/* ---------- 初始化 ---------- */
+updateConn();
+(function init(){
+  const r=location.hash.replace('#/','').replace('#','');
+  go(ROUTES[r]?r:'dashboard');
+  if(!ready())setTimeout(()=>toast('点击右上角「模型设置」接入大模型后即可真实使用','info'),500);
+})();
+
+</script>
+</body>
+</html>
